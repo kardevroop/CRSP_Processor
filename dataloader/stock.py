@@ -27,15 +27,21 @@ class Stock:
     def add_Market_Cap(self):
         self.data['MARKET_CAP'] = self.data['PRC'] * self.data['SHROUT']
     
+    def save_raw_data(self, result_dir):
+        self.data.to_csv(os.path.join(result_dir, "raw_data/{}.csv".format(self.ticker)), index=False)
+        
     def save_stock_data(self, result_dir):
         # self.data.to_csv(os.path.join(result_dir, "{}.csv".format(self.ticker)), index=False)
-        self.data.to_csv(os.path.join(result_dir, "raw_data/{}.csv".format(self.ticker)), index=False)
         self.train.to_csv(os.path.join(result_dir, "train/{}.csv".format(self.ticker)), index=False)
         self.validation.to_csv(os.path.join(result_dir, "validation/{}.csv".format(self.ticker)), index=False)
         self.test.to_csv(os.path.join(result_dir, "test/{}.csv".format(self.ticker)), index=False)
 
     def replace_char_with_zero(self, column_name):
         # Convert the column to string, replace 'c' with '0', and convert back to float
+        if self.data[column_name].astype(str).str.contains('B').any():
+            print(f"Found 'B' in column {column_name} of {self.ticker}")
+            print (self.data[self.data[column_name].astype(str).str.contains('B').any()])
+        self.data[column_name] = self.data[column_name].astype(str).str.replace('B', '0').astype(float)  
         self.data[column_name] = self.data[column_name].astype(str).str.replace('C', '0').astype(float)
 
     def select_columns(self, list_columns):
@@ -60,3 +66,14 @@ class Stock:
         self.validation_end = pd.to_datetime(end_validation)
         self.test_start = pd.to_datetime(start_test)
         self.test_end = pd.to_datetime(end_test)
+    
+    def sanity_check_time_diff(self, threshold):
+        self.data['date'] = pd.to_datetime(self.data['date'])
+        time_diff = self.data['date'].diff().dt.days
+        if time_diff.max() > threshold:
+            print(f"Time diff of {self.ticker} is {time_diff.max()} days, getting rid of old data")
+            # find the first date after the time_diff.max() and set it as the start date
+            new_state_date = self.data['date'].iloc[time_diff.idxmax()]
+            self.data = self.data[self.data['date'] > new_state_date]
+            
+        return time_diff.max()

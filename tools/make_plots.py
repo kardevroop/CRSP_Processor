@@ -26,7 +26,7 @@ def plot_market_cap(df, ticker, result_dir,  start_date='1990-01-01'):
     plt.xlabel('Date')
     plt.ylabel('Market Cap')
 
-    plt.ylim(0,8e7)
+    # plt.ylim(0,1e10)
     plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
     plt.grid(True)
     plt.title('{} Market Cap'.format(ticker))
@@ -36,6 +36,9 @@ def plot_all_market_caps(company_tickers, data_dir, result_dir):
     for ticker in company_tickers:
         df = pd.read_csv(os.path.join(data_dir, "{}.csv".format(ticker)))
         plot_market_cap(df, ticker, result_dir)
+        time_diff = check_time_diff(df)
+        if time_diff > 90:
+            print(f"Time diff of {ticker} is {time_diff} days")
 
 def plot_small_market_caps(company_tickers, data_dir, result_dir):
     # Three conditions:
@@ -52,18 +55,20 @@ def plot_small_market_caps(company_tickers, data_dir, result_dir):
                 else: 
                     print("Time diff is greater than 3 months for {}".format(ticker))
 
-def check_time_diff(df, threshold):
+def check_time_diff(df):
     # Convert the "data" column to datetime format
     df['date'] = pd.to_datetime(df['date'])
     time_diff = df['date'].diff().dt.days
-    return time_diff.max() > threshold
+    
+    return time_diff.max()
 
 if __name__ == '__main__':
-    data_dir = "./sp_500"
-    result_dir = "./sp_500_market_cap_selected"
+    data_dir = "./2023_sp_500/raw_data"
+    result_dir = "./sp_500_marketcap"
     create_dir(result_dir)
-    company_ticker_file = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp_500.txt"
+    company_ticker_file = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp_500_for_CRSP.txt"
     company_tickers = read_words_from_file(company_ticker_file)
 
-    # plot_all_market_caps(company_tickers, data_dir, result_dir)
-    plot_small_market_caps(company_tickers, data_dir, result_dir)
+    plot_all_market_caps(company_tickers, data_dir, result_dir)
+    # plot_small_market_caps(company_tickers, data_dir, result_dir)
+

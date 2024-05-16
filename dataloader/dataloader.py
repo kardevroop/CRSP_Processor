@@ -4,15 +4,22 @@ import numpy as np
 import os
 
 class DataLoader:
-    def __init__(self, data_dir, company_ticker_file):
+    def __init__(self, data_dir, company_ticker_file, permco_info):
         # self.result_dir = result_dir
         self.data = pd.read_csv(data_dir, low_memory=False)
-        self.data['CUSIP'] = self.data['CUSIP'].astype(str)
-        self.data['TICKER'] = self.data['TICKER'].astype(str)
-
+        self.pre_process_data()
         self.company_tickers = self.read_words_from_file(company_ticker_file)
+        self.pemco_info = permco_info
         self.protfolio = []
         print("successfully loaded data")
+        # self.sanity_check_data()
+    
+    def pre_process_data(self):
+        self.data['PERMNO'] = self.data['PERMNO'].astype(str)
+        self.data['TICKER'] = self.data['TICKER'].astype(str)
+        self.data = self.data[self.data['RET']!= 'C']
+        self.data = self.data[self.data['RET']!= 'B']
+        self.data['RET'] = self.data['RET'].astype(float)
     
     def read_words_from_file(self, file_path):
         # Open the file and read lines
@@ -21,36 +28,22 @@ class DataLoader:
             words = [line.strip() for line in file]
         return words
     
-    def load_data(self, ticker):
-        # raw_data = pd.read_csv(self.file_path, parse_dates=["date"],low_memory=False)
-
-        # for ticker in  (self.company_tickers):
-            # print("company name: {}, ticker: {}".format(name, ticker))
-        df = self.data[self.data['TICKER'] == ticker]
-        # df = raw_data[raw_data['COMNAM'] == name]
-        df = df.drop_duplicates(subset='date') # remove duplicate rows, it is not common but happens
-        # if (ticker == 'DOW'):
-        #     df = df[df['CUSIP'] == '26054310']
-        if(ticker == 'GS'):
-            df = df[df['CUSIP'] == '38141G10']
-        elif(ticker == 'HON'):
-            df = df[df['CUSIP'] == '43851610']
-        elif(ticker == 'JPM'):
-            df = df[df['CUSIP'] == '46625H10']
-        elif(ticker == 'TRV'):
-            df = df[df['CUSIP'] == '89417E10']
-        elif(ticker == 'V'):
-            df = df[df['CUSIP'] == '92826C83']
-        elif(ticker == 'CRM'):
-            df = df[df['CUSIP'] == '79466L30']
+    def load_data(self, permno):
+        df = self.data[self.data['PERMNO'] == permno]
+        # df = df.drop_duplicates(subset='date') # remove duplicate rows, it is not common but happens
         df = df.sort_values(by='date')
-
         return df
 
     def create_for_portfolio(self):
         # Load the data for the companies in the company_tickers
-        for ticker in self.company_tickers:
-            stock_data = self.load_data(ticker)
+        # for ticker in self.company_tickers:
+        #     stock_data = self.load_data(ticker)
+        #     stock = Stock(ticker, stock_data)
+        #     self.protfolio.append(stock)
+        
+        # # use permco to load data
+        for ticker, permco in self.pemco_info.items():
+            stock_data = self.load_data(permco)
             stock = Stock(ticker, stock_data)
             self.protfolio.append(stock)
     
@@ -72,6 +65,10 @@ class DataLoader:
     def remove_nan(self):
         for stock in self.protfolio:
             stock.remove_nan()
+            
+    def save_raw_data(self, result_dir):
+        for stock in self.protfolio:
+            stock.save_raw_data(result_dir)
 
     def save_stock_data(self, result_dir):
         # Save the stock data to the result_dir
@@ -137,3 +134,17 @@ class DataLoader:
         for stock in self.protfolio:
             stock.set_train_validation_test_dates(start_train, end_train, start_validation, end_validation, start_test, end_test)
         print("finished setting train, validation, and test dates")
+
+    def sanity_check_data(self):
+        self.check_string_in_column("RET")
+
+    def check_string_in_column(self, column_name):
+        print(f"Checking column {column_name} for string values")
+        string_rows = self.data[self.data[column_name].apply(lambda x: isinstance(x, str))]
+        print(string_rows[['date', 'TICKER', 'PERMNO', 'RET']])
+        print("Finished checking for string values")
+
+    def sanity_check_time_diff(self, max_time_diff):
+        for stock in self.protfolio:
+            stock.sanity_check_time_diff(max_time_diff)
+        print("Finished checking time diff")
