@@ -47,9 +47,9 @@ class Stock:
     def select_columns(self, list_columns):
         self.data = self.data[list_columns]
 
-    def remove_nan(self):
+    def remove_nan(self, parameters):
         self.data.replace([np.inf, -np.inf], np.nan, inplace=True)
-        self.data.dropna(inplace=True)
+        self.data.dropna(subset=parameters,inplace=True)
     
     def split_train_validation_test(self):
         # Filter the DataFrame to include only data from 1990 to 2021

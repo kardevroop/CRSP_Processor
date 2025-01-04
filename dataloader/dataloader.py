@@ -62,9 +62,9 @@ class DataLoader:
         for stock in self.protfolio:
             stock.select_columns(list_columns)
     
-    def remove_nan(self):
+    def remove_nan(self, parameters):
         for stock in self.protfolio:
-            stock.remove_nan()
+            stock.remove_nan(parameters)
             
     def save_raw_data(self, result_dir):
         for stock in self.protfolio:
@@ -88,6 +88,8 @@ class DataLoader:
                 df = stock.validation
             elif data_type == 'test':
                 df = stock.test
+            elif data_type == 'raw':
+                df = stock.data
             else:
                 print("data type is not valid")
                 return
@@ -112,10 +114,12 @@ class DataLoader:
         combined_return_train = self.get_combined_data('train', ['RET'])
         combined_return_validation = self.get_combined_data('validation', ['RET'])
         combined_return_test = self.get_combined_data('test', ['RET'])
+        combined_return_raw = self.get_combined_data('raw', ['RET'])
 
         combined_return_train.to_csv(os.path.join(result_dir, "combined_returns_train.csv"), index=False)
         combined_return_validation.to_csv(os.path.join(result_dir, "combined_returns_validation.csv"), index=False)
         combined_return_test.to_csv(os.path.join(result_dir, "combined_returns_test.csv"), index=False)
+        combined_return_raw.to_csv(os.path.join(result_dir, "combined_returns_raw.csv"), index=False)
         print("finished saving combined returns")
     
     def save_combined_parameters(self, result_dir, parameters, file_name):
@@ -124,10 +128,12 @@ class DataLoader:
         combined_parameters_train = self.get_combined_data('train', parameters)
         combined_parameters_validation = self.get_combined_data('validation', parameters)
         combined_parameters_test = self.get_combined_data('test', parameters)
+        combined_parameters_raw = self.get_combined_data('raw', parameters)
 
         combined_parameters_train.to_csv(os.path.join(result_dir, f"combined_{file_name}_train.csv"), index=False)
         combined_parameters_validation.to_csv(os.path.join(result_dir, f"combined_{file_name}_validation.csv"), index=False)
         combined_parameters_test.to_csv(os.path.join(result_dir, f"combined_{file_name}_test.csv"), index=False)
+        combined_parameters_raw.to_csv(os.path.join(result_dir, f"combined_{file_name}_raw.csv"), index=False)
         print("finished saving combined parameters")
 
     def set_train_validation_test_dates(self, start_train, end_train, start_validation, end_validation, start_test, end_test):

@@ -94,10 +94,12 @@ if __name__ == '__main__':
     data_path = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp500_new.csv"
     
     # data_path = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp500_small.csv"
-    company_ticker_file = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp_500_for_CRSP.txt"
+    # company_ticker_file = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp_500_for_CRSP.txt"
+    company_ticker_file = "/Users/zimenglyu/Documents/code/git/CRSP_Processor/selected_tickers_50.txt"
     permco_csv_path = "./sp_500_permco_info.csv"
     
     parameters = ["date", "TICKER", "PERMNO", "COMNAM", "SHRCLS", "NAMEENDT", "RET", "VOL_CHANGE", "BA_SPREAD", "ILLIQUIDITY", "sprtrn", "TURNOVER",  "PRC", "SHROUT", "MARKET_CAP","TRAN_COST", "ASK", "BID"]
+    input_parameters = ["RET",  "VOL_CHANGE",  "BA_SPREAD",  "ILLIQUIDITY", "sprtrn", "TURNOVER"]
     start_train = "1990-01-01"
     end_train = f"{test_year-2}-12-31"
     start_validation = f"{test_year-1}-01-01"
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     start_test = f"{test_year}-01-01"
     end_test = f"{test_year}-12-31"
 
-    result_dir = f"./{test_year}_sp_500"
+    result_dir = f"./{test_year}_sp_500_select_50"
     create_dir(result_dir)
     create_dir(os.path.join(result_dir, "train"))
     create_dir(os.path.join(result_dir, "validation"))
@@ -114,28 +116,31 @@ if __name__ == '__main__':
 
     # filter_large_data(data_path)
     company_tickers = read_words_from_file(company_ticker_file)
+    print(company_tickers)
     print(f"length of company_tickers: {len(company_tickers)}")
     permco_info = find_permco(company_tickers, data_path)
     dict_to_csv(permco_info, permco_csv_path)
     print(f"size of permco_info: {len(permco_info)}")
     # start
+    print(f"Prepare the data for {test_year}")
     data_loader = DataLoader(data_path, company_ticker_file, permco_info)
     data_loader.create_for_portfolio()
     data_loader.add_predictors()
     data_loader.select_columns(parameters)
-    data_loader.sanity_check_time_diff(90)
+    # data_loader.sanity_check_time_diff(90)
+    
+    data_loader.remove_nan(input_parameters)
     data_loader.save_raw_data(result_dir)
-    # data_loader.remove_nan()
     data_loader.set_train_validation_test_dates(start_train, end_train, start_validation, end_validation, start_test, end_test)
     data_loader.split_train_validation_test()
     data_loader.save_stock_data(result_dir)
 
 
-    # data_loader.save_combined_returns(result_dir)
-    # crsp_parameters = ["RET", "VOL_CHANGE", "ASK", "BID", "sprtrn"]
-    # predictors = ["BA_SPREAD", "ILLIQUIDITY", "TURNOVER", "VOL_CHANGE", "RET", "sprtrn"]
-    # data_loader.save_combined_parameters(result_dir, crsp_parameters, "parameters")
-    # data_loader.save_combined_parameters(result_dir, predictors, "predictors")
-    # print("finished saving data")
+    data_loader.save_combined_returns(result_dir)
+    crsp_parameters = ["RET", "VOL_CHANGE", "ASK", "BID", "sprtrn"]
+    predictors = ["BA_SPREAD", "ILLIQUIDITY", "TURNOVER", "VOL_CHANGE", "RET", "sprtrn"]
+    data_loader.save_combined_parameters(result_dir, crsp_parameters, "parameters")
+    data_loader.save_combined_parameters(result_dir, predictors, "predictors")
+    print("finished saving data")
 
 
