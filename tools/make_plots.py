@@ -66,7 +66,7 @@ if __name__ == '__main__':
     data_dir = "./2023_sp_500/raw_data"
     result_dir = "./sp_500_marketcap"
     create_dir(result_dir)
-    company_ticker_file = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp_500_for_CRSP.txt"
+    company_ticker_file = "datasets/CRSP/sp500/sp_500_for_CRSP.txt"
     company_tickers = read_words_from_file(company_ticker_file)
 
     plot_all_market_caps(company_tickers, data_dir, result_dir)
