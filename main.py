@@ -91,11 +91,11 @@ def csv_to_dict(file_path):
 if __name__ == '__main__':
     # Load the data
     test_year = 2022
-    data_path = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp500_new.csv"
+    data_path = "datasets/CRSP/sp500/sp500_new.csv"
     
-    # data_path = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp500_small.csv"
-    # company_ticker_file = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp_500_for_CRSP.txt"
-    company_ticker_file = "/Users/zimenglyu/Documents/code/git/CRSP_Processor/selected_tickers_50.txt"
+    # data_path = "datasets/CRSP/sp500/sp500_small.csv"
+    # company_ticker_file = "datasets/CRSP/sp500/sp_500_for_CRSP.txt"
+    company_ticker_file = "selected_tickers_50.txt"
     permco_csv_path = "./sp_500_permco_info.csv"
     
     parameters = ["date", "TICKER", "PERMNO", "COMNAM", "SHRCLS", "NAMEENDT", "RET", "VOL_CHANGE", "BA_SPREAD", "ILLIQUIDITY", "sprtrn", "TURNOVER",  "PRC", "SHROUT", "MARKET_CAP","TRAN_COST", "ASK", "BID"]
