@@ -1,6 +1,6 @@
 # Define the input and output file paths
-input_file_path = '/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp_500_for_CRSP.txt'
-output_file_path = '/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp_500_for_CRSP.txt'
+input_file_path = 'datasets/CRSP/sp500/sp_500_for_CRSP.txt'
+output_file_path = 'datasets/CRSP/sp500/sp_500_for_CRSP.txt'
 
 # Read the content of the input file
 with open(input_file_path, 'r') as file:
