@@ -1,7 +1,7 @@
 import pandas as pd
 from glob import glob
 
-data_dir = "/Users/zimenglyu/Documents/code/git/CRSP_Processor/sp_500_market_cap_selected"
+data_dir = "CRSP_Processor/sp_500_market_cap_selected"
 files = glob(data_dir + "/*.png")
 tickers = []
 for file in files:
