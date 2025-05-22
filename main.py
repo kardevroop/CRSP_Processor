@@ -77,7 +77,7 @@ def dict_to_csv(dict, file_path):
     df.to_csv(file_path, index=False)
 
 def filter_large_data (new_data_path):
-    old_data_path = "/Users/zimenglyu/Documents/datasets/CRSP/sp500/sp500_new.csv"
+    old_data_path = "datasets/CRSP/sp500/sp500_new.csv"
     parameters = ["date", "TICKER", "PERMNO", "COMNAM", "SHRCLS", "NAMEENDT", "RET", "VOL" , "sprtrn", "PRC", "SHROUT", "ASK", "BID"]
     data = pd.read_csv(old_data_path, low_memory=False)
     data = data[parameters]
